@@ -1,0 +1,9 @@
+{
+  "runID": "MW-2026-001",
+  "userName": "Simon",
+  "workflow": "Default ESV",
+  "marker": "COI",
+  "sampleNames": ["BR5_1", "BR5_2", "BR5_3"],
+  "classifier": "RDP COI v5.1",
+  "completed": true
+}

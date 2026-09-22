@@ -1,0 +1,11 @@
+workflow: Default ESV
+input:
+  marker: COI
+  samplePath: inputs
+SEQPREP:
+  minimumOverlap: 25.0
+  minimumQuality: 13.0
+RDP:
+  memory: -Xmx10g
+  custom: 'yes'
+  classifier: rRNAClassifier.properties
