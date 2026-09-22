@@ -27,3 +27,8 @@ pairs <- data.frame(
   revRead = onlyRevReads[hasReversePair]
 )
 print(pairs)
+
+#Only 001
+only001Bool <- grepl("001", onlyFastQ)
+only001 <- onlyFastQ[only001Bool]
+print(only001)
