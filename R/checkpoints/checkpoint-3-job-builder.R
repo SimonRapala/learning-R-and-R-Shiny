@@ -66,11 +66,33 @@ copyInputFiles <- function(
 }
 
 
+writeJobConfig <- function(
+  config,
+  configDirectory
+) {
+  if (!dir.exists(configDirectory)) {
+    stop("Config Directory Does Not Exist")
+  }
 
-sourceDirectory <- tempfile(
-  pattern = "uploaded-files-"
-)
+  if (!is.list(config)) {
+    stop("Config Needs TO Be A List")
+  }
 
+  configYAMLPath <- file.path(configDirectory, "config_ESV.yaml")
+
+  yaml::write_yaml(config, configYAMLPath, fileEncoding = "UTF-8")
+
+  if (!file.exists(configYAMLPath)) {
+    stop("File Creation Failed")
+  } else {
+    return(configYAMLPath)
+  }
+}
+
+
+
+# Create temporary uploaded files
+sourceDirectory <- tempfile("uploaded-files-")
 dir.create(sourceDirectory)
 
 sampleFiles <- file.path(
@@ -86,27 +108,73 @@ adapterFile <- file.path(
   "adapters.fasta"
 )
 
-file.create(sampleFiles)
-file.create(adapterFile)
+file.create(sampleFiles, adapterFile)
 
 
-
-
-jobsRoot <- file.path(
-  getwd(),
-  "jobs"
-)
+# Create job directories
+jobsRoot <- tempfile("jobs-")
 
 jobPaths <- createJobDirectories(
   jobsRoot,
   "MW-2026-002"
 )
 
+
+# Copy input files
 copiedFiles <- copyInputFiles(
   sampleFiles,
   adapterFile,
   jobPaths$inputs
 )
 
-print(copiedFiles)
 
+# Create configuration
+config <- list(
+  workflow = "Default ESV",
+  paths = list(
+    inputs = jobPaths$inputs,
+    output = jobPaths$output,
+    adapters = file.path(
+      jobPaths$inputs,
+      "adapters.fasta"
+    )
+  ),
+  SEQPREP = list(
+    minimumOverlap = 25
+  ),
+  CUTADAPT = list(
+    minimumQuality = 20
+  ),
+  RDP = list(
+    memory = "-Xmx10g",
+    custom = "yes",
+    classifier =
+      "/classifiers/COI/rRNAClassifier.properties"
+  )
+)
+
+configPath <- writeJobConfig(
+  config,
+  jobPaths$config
+)
+
+loadedConfig <- yaml::read_yaml(configPath)
+
+
+# Tests
+stopifnot(
+  all(dir.exists(unlist(jobPaths))),
+  length(copiedFiles) == 3,
+  all(file.exists(copiedFiles)),
+  file.exists(configPath),
+  loadedConfig$workflow == "Default ESV",
+  loadedConfig$SEQPREP$minimumOverlap == 25,
+  loadedConfig$CUTADAPT$minimumQuality == 20,
+  loadedConfig$RDP$memory == "-Xmx10g"
+)
+
+print(jobPaths)
+print(copiedFiles)
+print(configPath)
+
+message("All tests passed.")
