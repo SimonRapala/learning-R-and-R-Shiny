@@ -1,3 +1,4 @@
+
 mockResults <- data.frame(
   GlobalESV = c(
     "Zotu1", "Zotu2", "Zotu1",
@@ -41,7 +42,9 @@ write.csv(
   row.names = FALSE
 )
 
-# results <- read.csv(resultsPath)
+results <- read.csv(resultsPath)
+
+#lesson 1
 # print(results)
 # print(names(results))
 # print(nrow(results))
@@ -50,3 +53,23 @@ write.csv(
 # print(class(results$ESVsize))
 # print(class(results$sBP))
 # print(str(results))
+
+
+#lesson 2
+# uniqueSamples <- unique(results$SampleName)
+# sampleCount <- length(uniqueSamples)
+
+# uniqueESVs <- unique(results$GlobalESV)
+# esvCount <- length(uniqueESVs)
+
+# totalReads <- sum(results$ESVsize)
+
+# cat(
+#   "Unique samples:", uniqueSamples,
+#   "\nSample count:", sampleCount,
+#   "\nUnique ESVs:", uniqueESVs,
+#   "\nESV count:", esvCount,
+#   "\nTotal reads:", totalReads,
+#   "\n")
+
+#lesson 3
