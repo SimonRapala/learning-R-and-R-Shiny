@@ -128,32 +128,88 @@ results <- read.csv(resultsPath)
 # print(arthropodaEnoughSamples)
 
 #lesson 4
+# resultsBySample <- dplyr::group_by(
+#   results,
+#   SampleName
+# )
+
+# print(resultsBySample)
+
+
+
+# sampleSummary <- dplyr::summarise(
+#   resultsBySample,
+#   totalReads = sum(ESVsize),
+#   esvRecords = dplyr::n()
+# )
+
+# resultsPhylum <- dplyr::group_by(
+#   .data = results,
+#   Phylum
+# )
+
+# summarisedPhylum <- dplyr::summarise(
+#   .data = resultsPhylum,
+#   totalReads = sum(ESVsize),
+#   esvRecords = dplyr::n(),
+#   avgReads = mean(ESVsize)
+# )
+
+# print(resultsPhylum)
+# print(summarisedPhylum)
+
+#lesson 5
+# distinctSampleNames <- dplyr::n_distinct(
+#   results$SampleName
+# )
+
+# distinctSampleNamesExNA <- dplyr::n_distinct(
+#   results$Genus,
+#   na.rm = TRUE
+# )
+
+# numMissingGenus <- sum(
+#   is.na(results$Genus)
+# )
+
+# missingGenus <- dplyr::filter(
+#   .data = results,
+#   is.na(Genus)
+# )
+
+# print(distinctSampleNames)
+# print(distinctSampleNamesExNA)
+# print(numMissingGenus)
+# print(missingGenus)
+
+#lesson 6
+
 resultsBySample <- dplyr::group_by(
   results,
   SampleName
 )
 
-print(resultsBySample)
-
-
-
-sampleSummary <- dplyr::summarise(
+readsPerSample <- dplyr::summarise(
   resultsBySample,
   totalReads = sum(ESVsize),
-  esvRecords = dplyr::n()
+  .groups = "drop"
 )
 
-resultsPhylum <- dplyr::group_by(
-  .data = results,
-  Phylum
-)
+print(readsPerSample)
+readsChart <- ggplot2::ggplot(
+  data = readsPerSample,
+  mapping = ggplot2::aes(
+    x = SampleName,
+    y = totalReads
+  )
+) +
+  ggplot2::geom_col(
+    fill = "steelblue"
+  ) +
+  ggplot2::labs(
+    title = "Total Reads per Sample",
+    x = "Sample",
+    y = "Total Reads"
+  )
 
-summarisedPhylum <- dplyr::summarise(
-  .data = resultsPhylum,
-  totalReads = sum(ESVsize),
-  esvRecords = dplyr::n(),
-  avgReads = mean(ESVsize)
-)
-
-print(resultsPhylum)
-print(summarisedPhylum)
+print(readsChart)
