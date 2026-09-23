@@ -72,57 +72,88 @@ results <- read.csv(resultsPath)
 #   "\n")
 
 # lesson 3
-readResults <- dplyr::select(
-  results,
-  SampleName,
-  GlobalESV,
-  ESVsize
-)
-taxonomyResults <- dplyr::select(
-  .data = results,
-  GlobalESV,
-  Phylum,
-  Genus,
-  Species,
-  sBP
-)
+# readResults <- dplyr::select(
+#   results,
+#   SampleName,
+#   GlobalESV,
+#   ESVsize
+# )
+# taxonomyResults <- dplyr::select(
+#   .data = results,
+#   GlobalESV,
+#   Phylum,
+#   Genus,
+#   Species,
+#   sBP
+# )
 # print(readResults)
 # print(taxonomyResults)
 
 
-renamedResults <- dplyr::rename(
-  readResults,
-  sample = SampleName,
-  esv = GlobalESV,
-  readCount = ESVsize
-)
+# renamedResults <- dplyr::rename(
+#   readResults,
+#   sample = SampleName,
+#   esv = GlobalESV,
+#   readCount = ESVsize
+# )
 
 # print(renamedResults)
 # names(renamedResults)
 
-highReadResults <- dplyr::filter(
-  renamedResults,
-  esv >= 70
+# highReadResults <- dplyr::filter(
+#   renamedResults,
+#   esv >= 70
+# )
+
+# # print(highReadResults)
+
+# singleESV <- dplyr::filter(
+#   .data = results,
+#   SampleName == "BR5_1"
+# )
+
+# enoughSamples <- dplyr::filter(
+#   .data = results,
+#   ESVsize >= 50
+# )
+
+# arthropodaEnoughSamples <- dplyr::filter(
+#   .data = results,
+#   Phylum == "Arthropoda",
+#   ESVsize >= 70
+# )
+
+# print(singleESV)
+# print(enoughSamples)
+# print(arthropodaEnoughSamples)
+
+#lesson 4
+resultsBySample <- dplyr::group_by(
+  results,
+  SampleName
 )
 
-# print(highReadResults)
+print(resultsBySample)
 
-singleESV <- dplyr::filter(
+
+
+sampleSummary <- dplyr::summarise(
+  resultsBySample,
+  totalReads = sum(ESVsize),
+  esvRecords = dplyr::n()
+)
+
+resultsPhylum <- dplyr::group_by(
   .data = results,
-  SampleName == "BR5_1"
+  Phylum
 )
 
-enoughSamples <- dplyr::filter(
-  .data = results,
-  ESVsize >= 50
+summarisedPhylum <- dplyr::summarise(
+  .data = resultsPhylum,
+  totalReads = sum(ESVsize),
+  esvRecords = dplyr::n(),
+  avgReads = mean(ESVsize)
 )
 
-arthropodaEnoughSamples <- dplyr::filter(
-  .data = results,
-  Phylum == "Arthropoda",
-  ESVsize >= 70
-)
-
-print(singleESV)
-print(enoughSamples)
-print(arthropodaEnoughSamples)
+print(resultsPhylum)
+print(summarisedPhylum)
