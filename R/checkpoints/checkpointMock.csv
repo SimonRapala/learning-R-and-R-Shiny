@@ -1,0 +1,7 @@
+"GlobalESV","SampleName","ESVsize","Phylum","Genus","Species","sBP"
+"Zotu1","BR5_1",120,"Arthropoda","Baetis","Baetis_tricaudatus",0.98
+"Zotu2","BR5_1",45,"Arthropoda",NA,NA,NA
+"Zotu1","BR5_2",90,"Arthropoda","Baetis","Baetis_tricaudatus",0.98
+"Zotu3","BR5_2",30,"Annelida","Lumbricus","Lumbricus_terrestris",0.82
+"Zotu4","BR5_3",70,"Arthropoda","Chironomus","Chironomus_riparius",0.91
+"Zotu2","BR5_3",65,"Arthropoda",NA,NA,NA
