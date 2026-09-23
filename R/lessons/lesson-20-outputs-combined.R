@@ -1,4 +1,3 @@
-
 mockResults <- data.frame(
   GlobalESV = c(
     "Zotu1", "Zotu2", "Zotu1",
@@ -44,7 +43,7 @@ write.csv(
 
 results <- read.csv(resultsPath)
 
-#lesson 1
+# lesson 1
 # print(results)
 # print(names(results))
 # print(nrow(results))
@@ -55,7 +54,7 @@ results <- read.csv(resultsPath)
 # print(str(results))
 
 
-#lesson 2
+# lesson 2
 # uniqueSamples <- unique(results$SampleName)
 # sampleCount <- length(uniqueSamples)
 
@@ -72,4 +71,58 @@ results <- read.csv(resultsPath)
 #   "\nTotal reads:", totalReads,
 #   "\n")
 
-#lesson 3
+# lesson 3
+readResults <- dplyr::select(
+  results,
+  SampleName,
+  GlobalESV,
+  ESVsize
+)
+taxonomyResults <- dplyr::select(
+  .data = results,
+  GlobalESV,
+  Phylum,
+  Genus,
+  Species,
+  sBP
+)
+# print(readResults)
+# print(taxonomyResults)
+
+
+renamedResults <- dplyr::rename(
+  readResults,
+  sample = SampleName,
+  esv = GlobalESV,
+  readCount = ESVsize
+)
+
+# print(renamedResults)
+# names(renamedResults)
+
+highReadResults <- dplyr::filter(
+  renamedResults,
+  esv >= 70
+)
+
+# print(highReadResults)
+
+singleESV <- dplyr::filter(
+  .data = results,
+  SampleName == "BR5_1"
+)
+
+enoughSamples <- dplyr::filter(
+  .data = results,
+  ESVsize >= 50
+)
+
+arthropodaEnoughSamples <- dplyr::filter(
+  .data = results,
+  Phylum == "Arthropoda",
+  ESVsize >= 70
+)
+
+print(singleESV)
+print(enoughSamples)
+print(arthropodaEnoughSamples)
