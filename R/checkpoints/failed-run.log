@@ -1,0 +1,11 @@
+Status: 
+1
+Stdout: 
+Starting mock pipeline
+Processing sample reads
+
+Sterr: 
+Mock pipeline failed during processing
+
+Timeout: 
+FALSE

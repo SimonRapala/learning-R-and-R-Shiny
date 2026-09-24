@@ -184,4 +184,3 @@ readr::write_csv(
   commonTaxanomic,
   file.path(outputDirectory, "common_taxa.csv")
 )
-
