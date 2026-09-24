@@ -145,14 +145,21 @@ results <- read.csv(resultsPath)
 print(reportCSV(results))
 readSampleGraph <- readsPerSample(results)
 print(readSampleGraph)
-print(countTaxonomicInfo((results)))
+taxaInfoCount <- countTaxonomicInfo(results)
+print(taxaInfoCount)
 filteredData <- confidenceScore(results = results, confidenceThreshold = 0.90)
-print(filteredData)
-print(commonTaxa(filteredData))
+commonTaxanomic <- commonTaxa(filteredData)
+print(commonTaxanomic)
 barGraphSamples <- createReadsChart(readSampleGraph)
 
+outputDirectory <- file.path(getwd(), "output")
+
+if (!dir.exists(outputDirectory)) {
+  dir.create(outputDirectory)
+}
+
 chartPath <- file.path(
-  getwd(),
+  outputDirectory,
   "reads_per_sample.pdf"
 )
 
@@ -163,5 +170,18 @@ ggplot2::ggsave(
   height = 5
 )
 
-print(chartPath)
+readr::write_csv(
+  readSampleGraph,
+  file.path(outputDirectory, "reads_per_sample.csv")
+)
+
+readr::write_csv(
+  taxaInfoCount,
+  file.path(outputDirectory, "taxonomic_counts.csv")
+)
+
+readr::write_csv(
+  commonTaxanomic,
+  file.path(outputDirectory, "common_taxa.csv")
+)
 
