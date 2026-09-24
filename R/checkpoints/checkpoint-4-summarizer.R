@@ -91,7 +91,7 @@ confidenceScore <- function(results,
 }
 
 
-commonTaxa <- function(results){
+commonTaxa <- function(results) {
   groupedData <- dplyr::group_by(
     .data = results,
     Species
@@ -110,6 +110,24 @@ commonTaxa <- function(results){
 }
 
 
+createReadsChart <- function(sampleReads) {
+  graph <- ggplot2::ggplot(
+    data = sampleReads,
+    mapping = ggplot2::aes(
+      x = SampleName,
+      y = totalCounts
+    )
+  ) +
+    ggplot2::geom_col() +
+    ggplot2::labs(
+      title = "Total Reads Per Sample",
+      x = "Sample",
+      y = "Total Reads"
+    )
+  return(graph)
+}
+
+
 
 resultsPath <- file.path(
   getwd(),
@@ -125,8 +143,25 @@ write.csv(
 results <- read.csv(resultsPath)
 
 print(reportCSV(results))
-print(readsPerSample((results)))
+readSampleGraph <- readsPerSample(results)
+print(readSampleGraph)
 print(countTaxonomicInfo((results)))
 filteredData <- confidenceScore(results = results, confidenceThreshold = 0.90)
 print(filteredData)
 print(commonTaxa(filteredData))
+barGraphSamples <- createReadsChart(readSampleGraph)
+
+chartPath <- file.path(
+  getwd(),
+  "reads_per_sample.pdf"
+)
+
+ggplot2::ggsave(
+  filename = chartPath,
+  plot = barGraphSamples,
+  width = 8,
+  height = 5
+)
+
+print(chartPath)
+
