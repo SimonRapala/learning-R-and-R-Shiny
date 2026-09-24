@@ -1,5 +1,6 @@
 samplePath <- file.path(
   getwd(),
+  "textFiles",
   "sample reads.txt"
 )
 
@@ -24,3 +25,4 @@ firstLines <- system2(
 )
 
 print(firstLines)
+unlink(samplePath)
