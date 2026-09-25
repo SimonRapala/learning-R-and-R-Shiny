@@ -1,6 +1,8 @@
 # Run this script from the project root
 projectRoot <- getwd()
 
+#creates a string that looks like a pathway tat can be 
+#used to make a directory in a specific place
 lessonFile <- file.path(
   projectRoot,
   "R",
@@ -45,5 +47,7 @@ cat("Configuration directory:", configDirectory, "\n")
 cat("Log directory:", logDirectory, "\n")
 cat("Output directory:", outputDirectory, "\n\n")
 
+#these directories were not made just the string for them
+#make with dir.create() or file.create()
 cat("Lesson file exists:", file.exists(lessonFile), "\n")
 cat("Job directory exists:", dir.exists(jobDirectory), "\n")

@@ -1,3 +1,4 @@
+#Gets the current directory the program is ran from
 cat("Working directory:", getwd(), "\n\n")
 
 pathFromLessons <- "lesson-13-directories.R"
@@ -14,6 +15,7 @@ absolutePath <- paste0(
 
 cat(
   "Path from lessons exists:",
+  #allows us to check if a file exists with that path
   file.exists(pathFromLessons),
   "\n"
 )
