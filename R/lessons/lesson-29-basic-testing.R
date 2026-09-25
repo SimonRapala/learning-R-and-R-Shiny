@@ -29,7 +29,7 @@ code = {
 }
 )
 
-testthat::test_that( desc = "These should fail as they are not success or failure",
+testthat::test_that( desc = "These should pass as an error as they are not success or failure",
 code = {
   testthat::expect_error(object = validateMode("cancel"), "Mode must be success or failure")
   testthat::expect_error(object = validateMode("STOP"), "Mode must be success or failure")
