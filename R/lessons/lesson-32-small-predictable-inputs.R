@@ -51,6 +51,4 @@ testthat::test_that("only FASTQ filenames are returned", {
     actualFastqFiles,
     expectedFastqFiles
   )
-
-
 })
