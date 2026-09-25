@@ -34,6 +34,24 @@
 # })
 
 
+isValidFastqFilename <- function(filename) {
+  if (
+    !is.character(filename) ||
+      length(filename) != 1 ||
+      is.na(filename)
+  ) {
+    return(FALSE)
+  }
+
+  return(
+    grepl(
+      pattern = "_R[12]_.+\\.fastq\\.gz$",
+      x = basename(filename)
+    )
+  )
+}
+
+
 testthat::test_that(
   desc = "temp job file are created",
   code = {
@@ -80,6 +98,28 @@ testthat::test_that(
         ">forward_primer",
         "ACGTACGT"
       )
+    )
+
+    testthat::expect_true(
+      isValidFastqFilename("BR5_1_R1_001.fastq.gz")
+    )
+    testthat::expect_true(
+      isValidFastqFilename("BR5_1_R2_001.fastq.gz")
+    )
+    testthat::expect_true(
+      isValidFastqFilename("BR5_1_R1_004.fastq.gz")
+    )
+
+    testthat::expect_false(
+      isValidFastqFilename("adapters.fasta")
+    )
+
+    testthat::expect_false(
+      isValidFastqFilename("BR5_1_R3_001.fastq.gz")
+    )
+
+    testthat::expect_false(
+      isValidFastqFilename(NA)
     )
   }
 )
