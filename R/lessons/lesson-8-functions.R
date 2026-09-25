@@ -19,12 +19,14 @@
 
 
 # Also can have default arguments
-
+#Helps make code structure clear and improves modularity.
+#Can also help with abstraction and encapsulation
 createRunSettings <- function(
   overlap = 25,
   quality = 20,
   memoryGB = 10
 ) {
+  #Can have explicit return, or last expression will be returned
   return(
     list(
       overlap = overlap,
@@ -34,7 +36,7 @@ createRunSettings <- function(
   )
 }
 
-
+#can save feedback for the future or print it right away
 print(createRunSettings())
 
 print(createRunSettings(memoryGB = 12))

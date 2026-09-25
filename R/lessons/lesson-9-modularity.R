@@ -1,3 +1,4 @@
+#separated pieces of code into smaller pieces to improve flow and clarity
 applyDefault <- function(value, default) {
   if (is.na(value)) {
     return(default)
@@ -5,7 +6,7 @@ applyDefault <- function(value, default) {
 
   return(value)
 }
-
+#functions can take multiple values and can be explicitly defined
 isWithinRange <- function(value, minimum, maximum) {
   return(value >= minimum && value <= maximum)
 }
@@ -13,7 +14,7 @@ isWithinRange <- function(value, minimum, maximum) {
 validateSetting <- function(value, minimum, maximum, default) {
   finalValue <- applyDefault(value, default)
   valid <- isWithinRange(finalValue, minimum, maximum)
-
+  #return multiple values using lists or data frames
   return(
     list(
       value = finalValue,

@@ -1,3 +1,4 @@
+#NA acts like a null value, operations cannot be performed on it it must be removed
 confidenceScores <- c(1.00, 0.95, NA, 0.87, NA)
 
 print(confidenceScores)

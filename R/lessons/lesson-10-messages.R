@@ -18,14 +18,16 @@
 # checkMemory(8)
 # checkMemory(NA)
 
-
+#Messages are great for giving the user information or debugging
 checkOverlap <- function(overlap) {
   message("Checking overlap ...")
 
   if (is.na(overlap)){
+    #Stop is good for throwing an error that can give specific info to user
     stop("Overlap cannot be missing!")
   }
   if (overlap < 25){
+    #Warning gives info to user but does not halt program
     warning("Overlap is below the recommended minimum.")
   }
 
