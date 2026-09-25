@@ -1,8 +1,9 @@
+#creates a temp root during runtime that is cleaned up afterwards
 temporaryRoot <- tempdir()
 
 cat("R temporary directory:", temporaryRoot, "\n")
 cat("Directory exists:", dir.exists(temporaryRoot), "\n")
-
+#makes a file pathway with that name pattern
 temporaryJob <- tempfile(pattern = "metaworks-job-")
 
 cat("Proposed job path:", temporaryJob, "\n")
@@ -16,7 +17,7 @@ adapterPath <- file.path(
   temporaryJob,
   "adapters.fasta"
 )
-
+#writes into a txt file 
 writeLines(
   c(
     ">forward_primer",
@@ -36,7 +37,7 @@ print(
     full.names = TRUE
   )
 )
-
+#ensures that the temp files are deleted after run
 unlink(
   temporaryJob,
   recursive = TRUE

@@ -183,12 +183,12 @@ results <- read.csv(resultsPath)
 # print(missingGenus)
 
 #lesson 6
-
+#groups data by chosen attribute
 resultsBySample <- dplyr::group_by(
   results,
   SampleName
 )
-
+#collapses table based off grouping while performing operations
 readsPerSample <- dplyr::summarise(
   resultsBySample,
   totalReads = sum(ESVsize),
@@ -196,16 +196,19 @@ readsPerSample <- dplyr::summarise(
 )
 
 print(readsPerSample)
+#plot out a chart based of the filtered data and chosen attribute
+#determines what info goes where and maps it
 readsChart <- ggplot2::ggplot(
   data = readsPerSample,
   mapping = ggplot2::aes(
     x = SampleName,
     y = totalReads
   )
-) +
+) +#makes it a bar graph with a blue color
   ggplot2::geom_col(
     fill = "steelblue"
   ) +
+  #labels the chart to make it readable
   ggplot2::labs(
     title = "Total Reads per Sample",
     x = "Sample",

@@ -1,3 +1,4 @@
+
 practiceDir <- tempfile(
   pattern = "permission-practice-"
 )
@@ -16,7 +17,7 @@ writeLines(
   ),
   configPath
 )
-
+#changes the users permisssions for a file
 Sys.chmod(
   configPath,
   mode = "0644"
