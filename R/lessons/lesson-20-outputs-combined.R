@@ -208,7 +208,7 @@ readsChart <- ggplot2::ggplot(
   ggplot2::geom_col(
     fill = "steelblue"
   ) +
-  #labels the chart to make it readable
+  #labels the chart to make it readable for user
   ggplot2::labs(
     title = "Total Reads per Sample",
     x = "Sample",

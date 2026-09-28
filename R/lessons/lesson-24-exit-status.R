@@ -14,7 +14,7 @@ reportCommandStatus <- function(status) {
   }
 }
 
-
+#if stdout is not present will return 0 for pass and nonzero for fail
 goodOutput <- system2(
   command = "ls",
   args = shQuote(filePath)

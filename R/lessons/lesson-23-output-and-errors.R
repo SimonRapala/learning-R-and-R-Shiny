@@ -1,3 +1,4 @@
+#creates a temporary file starting with stdout-
 standardOutputPath <- tempfile(
   pattern = "stdout-"
 )
@@ -21,7 +22,8 @@ existingFilePath <- file.path(
   getwd(),
   "lesson-23-output-and-errors.R"
 )
-
+#shQuote puts quotes around the argument so its not interpretted wrong
+#can choose the path that a pass or fail take, there they write to files
 system2(
   command = "ls",
   args = shQuote(missingFilePath),
