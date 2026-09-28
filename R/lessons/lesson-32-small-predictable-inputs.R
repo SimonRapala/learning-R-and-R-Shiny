@@ -3,7 +3,9 @@ returnFastqFiles <- function(filenames) {
 
   return(filenames[isFastq])
 }
-
+#good standard coding practice, use simple values to test 
+#specifics and that you can abstract to full project
+#controls variance and allows you to test specific features
 testthat::test_that("only FASTQ filenames are returned", {
   filenames <- c(
     "BR5_1_R1_001.fastq.gz",

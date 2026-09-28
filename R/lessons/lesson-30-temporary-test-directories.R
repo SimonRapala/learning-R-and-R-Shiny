@@ -51,7 +51,8 @@ isValidFastqFilename <- function(filename) {
   )
 }
 
-
+#good practice, creates a temp directory that holds the tests
+#used to isolate the test changes to a different directory from real one
 testthat::test_that(
   desc = "temp job file are created",
   code = {

@@ -12,7 +12,7 @@ writeLines(
   ),
   practiceFilePath
 )
-
+#shQuote ensures that that variable path is one argument
 firstLines <- system2(
   command = "head",
   args = c("-n", "2", shQuote(practiceFilePath)),

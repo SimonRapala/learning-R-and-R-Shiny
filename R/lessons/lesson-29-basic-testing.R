@@ -1,17 +1,18 @@
 validateMode <- function(mode) {
-  mode <- tolower(mode)
 
-  if (!(mode %in% c("success", "failure"))) {
+  if (!(tolower(mode) %in% c("success", "failure"))) {
     stop("Mode must be success or failure")
   }
 
-  return(mode)
+  return(tolower(mode))
 }
 #Manual Testing
 # validateMode("SUCCESS")
 # validateMode("wrong")
 
+#should test one type of behaviour, test suite
 testthat::test_that("validateMode returns lowercase mode", 
+#structure is type of relationship, code being tested, expected return
 {
   testthat::expect_equal( validateMode("SUCCESS"), "success")
 

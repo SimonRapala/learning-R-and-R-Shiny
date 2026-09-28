@@ -1,3 +1,5 @@
+#a package that performss a lot of the same functions of system2()
+#holds status along with stdout and stderr message
 successfulResult <- processx::run(
   command = "ls",
   args = getwd(),
