@@ -10,24 +10,56 @@ ui <- fluidPage(
     inputId = "userName",
     label = "Enter your name:"
   ),
+  checkboxInput(
+  inputId = "pseudogeneFilter",
+  label = "Use pseudogene filtering",
+  value = TRUE
+),
+
+  numericInput(
+  inputId = "memoryGB",
+  label = "Memory (GB):",
+  value = 10,
+  min = 4,
+  max = 64,
+  step = 1
+),
+selectInput(
+  inputId = "marker",
+  label = "Genetic marker:",
+  choices = c("COI", "16S", "ITS"),
+  selected = "COI"
+),
+actionButton(
+  inputId = "runPipeline",
+  label = "Run MetaWorks"
+),
+
   #an output box that will display a message
   textOutput(
     #output box ID
     outputId = "greeting"
+  ),
+
+  textOutput(
+    outputId = "count"
   )
 )
 
 #sits idle until a change it made to the interface
 #then updates all the code inside this function, will reactively display
 server <- function(input, output, session) {
-  #when this runs will write the text in that function to the greeting ID
-  output$greeting <- renderText({
-    paste(
-      "Welcome, ",
-      #gets this IDs input and pastes into the output
-      input$userName, ". Welcome to MetaWorks!"
-    )
-  })
+output$greeting <- renderText({
+paste0(
+"Welcome, ",
+input$userName,
+". Welcome to MetaWorks!"
+)
+})
+
+output$count <- renderText(
+  {paste0("Count: ", input$runPipeline)}
+)
 }
 
 shinyApp(
