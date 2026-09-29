@@ -53,7 +53,7 @@ ui <- fluidPage(
       hr(),
 
       h3("Submitted Settings"),
-      verbatimTextOutput("submittedSettings")
+      verbatimTextOutput("submittedSettings"),
     )
   )
 )
@@ -85,6 +85,10 @@ server <- function(input, output, session) {
   submittedSettings <- eventReactive(
     input$runPipeline,
     {
+      req(
+        input$userName != "",
+        input$memoryGB >= 4
+        )
       list(
         userName = input$userName,
         marker = input$marker,
@@ -97,6 +101,7 @@ server <- function(input, output, session) {
 
   # Performs an action when the button is clicked
   observeEvent(input$runPipeline, {
+    req(input$userName != "")
     runStatus("Run requested")
   })
 
