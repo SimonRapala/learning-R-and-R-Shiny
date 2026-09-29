@@ -5,21 +5,18 @@ library(shiny)
 
 ui <- fluidPage(
   titlePanel("MetaWorks Run Interface"),
-
   sidebarLayout(
     sidebarPanel(
       textInput(
         inputId = "userName",
         label = "User name:"
       ),
-
       selectInput(
         inputId = "marker",
         label = "Genetic marker:",
         choices = c("COI", "16S", "ITS"),
         selected = "COI"
       ),
-
       numericInput(
         inputId = "memoryGB",
         label = "Memory (GB):",
@@ -28,30 +25,23 @@ ui <- fluidPage(
         max = 64,
         step = 2
       ),
-
       checkboxInput(
         inputId = "pseudogeneFilter",
         label = "Use pseudogene filtering",
         value = TRUE
       ),
-
       actionButton(
         inputId = "runPipeline",
         label = "Run MetaWorks"
       )
     ),
-
     mainPanel(
       h3("Welcome"),
       textOutput("greeting"),
-
       hr(),
-
       h3("Run Status"),
       textOutput("runStatus"),
-
       hr(),
-
       h3("Submitted Settings"),
       verbatimTextOutput("submittedSettings"),
     )
@@ -62,7 +52,6 @@ ui <- fluidPage(
 # Server logic ------------------------------------------------------------
 
 server <- function(input, output, session) {
-
   # Updates automatically when the name changes
   output$greeting <- renderText({
     if (input$userName == "") {
@@ -85,10 +74,10 @@ server <- function(input, output, session) {
   submittedSettings <- eventReactive(
     input$runPipeline,
     {
-      req(
-        input$userName != "",
-        input$memoryGB >= 4
-        )
+      validate(
+        need(input$userName != "", "Please Enter A Name!"),
+        need(input$memoryGB >= 8, "Please Allocate 8 GB Or More")
+      )
       list(
         userName = input$userName,
         marker = input$marker,
