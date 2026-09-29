@@ -22,6 +22,8 @@ inspectFastqFiles <- function(filenames) {
     stop("No FASTQ files were found.")
   }
 
+
+
   # returns the vector of FWD reads
   resultsFwdRead <- returnFwdRead(fastQFiles)
   # Saves the FWD and REV reads
