@@ -36,14 +36,21 @@ ui <- fluidPage(
       )
     ),
     mainPanel(
-      h3("Welcome"),
-      textOutput("greeting"),
-      hr(),
-      h3("Run Status"),
-      textOutput("runStatus"),
-      hr(),
-      h3("Submitted Settings"),
-      verbatimTextOutput("submittedSettings"),
+      tabsetPanel(
+        tabPanel(
+          title = "Overview",
+          h3("Welcome"),
+          textOutput("greeting"),
+          hr(),
+          h3("Run Status"),
+          textOutput("runStatus")
+        ),
+        tabPanel(
+          title = "Submitted Settings",
+          h3("Submitted Settings"),
+          verbatimTextOutput("submittedSettings")
+        )
+      )
     )
   )
 )
@@ -92,6 +99,12 @@ server <- function(input, output, session) {
   observeEvent(input$runPipeline, {
     req(input$userName != "")
     runStatus("Run requested")
+
+    showNotification(
+      ui = "MetaWorks settings were submitted.",
+      type = "message",
+      duration = 5
+    )
   })
 
 
