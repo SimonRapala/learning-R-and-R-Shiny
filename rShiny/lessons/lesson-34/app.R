@@ -27,7 +27,7 @@ ui <- fluidPage(
     value = 10,
     min = 4,
     max = 64,
-    step = 1
+    step = 2
   ),
   selectInput(
     inputId = "marker",
@@ -59,12 +59,27 @@ ui <- fluidPage(
   # reserves a spot for the bar graph
   plotOutput(
     outputId = "readsPlot"
-  )
+  ),
+  h2("Current Run Settings"),
+  verbatimTextOutput(
+    outputId = "settingsSummary"
+  ),
+  textOutput("runStatus")
 )
 
 # sits idle until a change it made to the interface
 # then updates all the code inside this function, will reactively display
 server <- function(input, output, session) {
+  runSettings <- reactive({
+    list(
+      userName = input$userName,
+      marker = input$marker,
+      memoryGB = input$memoryGB,
+      pseudogeneFilter = input$pseudogeneFilter
+    )
+  })
+
+
   output$greeting <- renderText({
     paste0(
       "Welcome, ",
@@ -120,6 +135,21 @@ server <- function(input, output, session) {
         "seagreen"
       )
     )
+  })
+
+  output$settingsSummary <- renderPrint({
+    runSettings()
+  })
+
+
+  runStatus <- reactiveVal("Not started")
+
+  observeEvent(input$runPipeline, {
+    runStatus("Run requested")
+  })
+
+  output$runStatus <- renderText({
+    paste("Status:", runStatus())
   })
 }
 
