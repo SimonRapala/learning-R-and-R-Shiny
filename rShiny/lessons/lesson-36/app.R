@@ -109,27 +109,72 @@ server <- function(input, output, session) {
     {
       req(input$fastqFiles)
 
-      runID <- format(
-        Sys.time(),
-        "%Y/%m/%d|%H-%M-%S"
-      )
+      tryCatch(
+        {
+          copiedPaths <- withProgress(
+            message = "Saving uploaded files",
+            value = 0,
+            {
+              incProgress(
+                amount = 0.25,
+                detail = "Creating the run directory"
+              )
 
-      inputDirectory <- file.path(
-        getwd(),
-        "jobs",
-        runID,
-        "inputs"
-      )
+              runID <- paste0(
+                "MW-",
+                format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
+              )
 
-      copiedPaths <- copyUploadedFiles(
-        uploadInfo = input$fastqFiles,
-        inputDirectory = inputDirectory
-      )
+              inputDirectory <- file.path(
+                getwd(),
+                "jobs",
+                runID,
+                "inputs"
+              )
 
-      paste(
-        "Saved:",
-        copiedPaths,
-        collapse = "\n"
+              incProgress(
+                amount = 0.25,
+                detail = "Checking uploaded files"
+              )
+
+              copiedPaths <- copyUploadedFiles(
+                uploadInfo = input$fastqFiles,
+                inputDirectory = inputDirectory
+              )
+
+              incProgress(
+                amount = 0.50,
+                detail = "Files saved"
+              )
+
+              copiedPaths
+            }
+          )
+
+          showNotification(
+            ui = "Uploaded files were saved successfully.",
+            type = "message",
+            duration = 5
+          )
+
+          paste(
+            "Saved:",
+            copiedPaths,
+            collapse = "\n"
+          )
+        },
+        error = function(error) {
+          showNotification(
+            ui = conditionMessage(error),
+            type = "error",
+            duration = 5
+          )
+
+          paste(
+            "Save failed:",
+            conditionMessage(error)
+          )
+        }
       )
     }
   )
