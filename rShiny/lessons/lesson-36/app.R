@@ -3,37 +3,40 @@ library(shiny)
 ui <- fluidPage(
   titlePanel("MetaWorks Upload Manager"),
   fileInput(
-    inputId = "adapterFile",
-    label = "Upload adapter file",
-    multiple = FALSE,
-    accept = c(".fasta", ".fa")
+    inputId = "fastqFiles",
+    label = "Upload Fastq File",
+    multiple = TRUE,
+    accept = ".fastq.gz"
   ),
   h3("Uploaded File Information"),
-  verbatimTextOutput(
-    outputId = "fileInformation"
-  ),
-  verbatimTextOutput(
-    outputId = "inspectElements"
-  )
+  tableOutput(
+  outputId = "fastqInformation"
+)
 )
 
 server <- function(input, output, session) {
-  output$fileInformation <- renderPrint({
-    req(input$adapterFile)
+  output$fastqInformation <- renderTable({
+  req(input$fastqFiles)
 
-    input$adapterFile
-  })
+  validExtensions <- grepl(
+    pattern = "\\.fastq\\.gz$",
+    x = input$fastqFiles$name,
+    ignore.case = TRUE
+  )
 
-  output$inspectElements <- renderPrint({
-    req(input$adapterFile)
-
-    result <- cat(
-      "Name: ", input$adapterFile$name, "\nType: ", input$adapterFile$type,
-      "\nSize: ", input$adapterFile$size, "\nPath: ", input$adapterFile$datapath
+  validate(
+    need(
+      all(validExtensions),
+      "Every uploaded file must end in .fastq.gz"
     )
+  )
 
-    result
-  })
+  input$fastqFiles[, c(
+    "name",
+    "size",
+    "type"
+  )]
+})
 }
 
 shinyApp(
