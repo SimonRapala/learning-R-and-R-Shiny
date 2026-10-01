@@ -60,8 +60,7 @@ createJobsDir <- function(workingDir) {
 
   dirName <- file.path(
     rootPath,
-    date,
-    "output"
+    date
   )
 
   if (dir.exists(dirName)) {
