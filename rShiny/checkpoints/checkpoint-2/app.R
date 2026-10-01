@@ -3,6 +3,81 @@ options(
   shiny.maxRequestSize = 500 * 1024^2
 )
 
+filePairingVerification <- function(fastQFiles) {
+  fwdReadBool <- grepl("_R1_", fastQFiles)
+  revReadBool <- grepl("_R2_", fastQFiles)
+
+  fwdRead <- fastQFiles[fwdReadBool]
+  revRead <- fastQFiles[revReadBool]
+
+  expectedRevRead <- sub(
+    "_R1_",
+    "_R2_",
+    fwdRead
+  )
+
+  expectedFwdRead <- sub(
+    "_R2_",
+    "_R1_",
+    revRead
+  )
+
+  hasRevPair <- expectedRevRead %in% revRead
+  hasFwdPair <- expectedFwdRead %in% fwdRead
+
+  pairs <- data.frame(
+    fwdRead = fwdRead[hasRevPair],
+    revRead = expectedRevRead[hasRevPair]
+  )
+
+  missingR1 <- expectedFwdRead[!hasFwdPair]
+  missingR2 <- expectedRevRead[!hasRevPair]
+
+  return(
+    list(
+      pairs = pairs,
+      missingR1 = missingR1,
+      missingR2 = missingR2
+    )
+  )
+}
+
+
+createJobsDir <- function(workingDir){
+  rootPath <- file.path(
+    workingDir,
+    "project",
+    "jobs"
+  )
+  if (!dir.exists(rootPath)){
+    creationStatus <- dir.create(rootPath, recursive = TRUE)
+    if (!creationStatus) {
+      stop("Directory Creation Failed")
+    }
+  }
+
+  date <- format(Sys.time(), format = "MW-Y%-%M-D%_H%:M%:S%")
+
+  fileName <- file.path(
+    rootPath,
+    date,
+    "output",
+  )
+
+  if(file.exists(fileName)){
+    stop("File Already Exists")
+  }
+
+  fileStatus <- file.create(fileName)
+
+  if (!fileStatus){
+    stop("File Creation Failed")
+  }
+
+  return(fileName)
+}
+
+
 
 ui <- fluidPage(
   titlePanel(
@@ -22,12 +97,32 @@ ui <- fluidPage(
         label = "Please Select Adapter File",
         multiple = FALSE,
         accept = ".fasta"
+      ),
+      actionButton(
+        inputId = "createJob",
+        label = "Create Job"
       )
     ),
     mainPanel = mainPanel(
-      h3("File Info"),
-      tableOutput(
-        outputId = "fileInfo"
+      tabsetPanel(
+        tabPanel(
+          "File Info",
+          tableOutput(
+            outputId = "fileInfo"
+          )
+        ),
+        tabPanel(
+          title = "Pairing",
+          verbatimTextOutput(
+            outputId = "filePairingInfo"
+          )
+        ),
+        tabPanel(
+          title = "Information",
+          verbatimTextOutput(
+            outputId = "statusProgress"
+          )
+        )
       )
     )
   )
@@ -111,6 +206,46 @@ server <- function(input, output, session) {
       adapterInfo
     )
   })
+
+  output$filePairingInfo <- renderPrint({
+    req(input$fastQFiles)
+
+    pairs <- filePairingVerification(
+      fastQFiles = input$fastQFiles$name
+    )
+
+    cat("Pairs:\n")
+    print(pairs$pairs)
+
+    cat("\nMissing R1 files:\n")
+    print(pairs$missingR1)
+
+    cat("\nMissing R2 files:\n")
+    print(pairs$missingR2)
+  })
+
+
+  observeEvent(
+    eventExpr = input$createJob,
+    handlerExpr = {
+      renderText(
+      tryCatch(
+        expr = {
+          rootPath <- createJobsDir(getwd())
+          pathwayPrint <- paste0("Path: ", rootPath)
+          return(pathwayPrint)
+        },
+        error = function(error){
+          return(message("Error: ", conditionMessage(error)))
+        }
+      )
+      )
+    }
+  )
+
+
+
+
 }
 
 
