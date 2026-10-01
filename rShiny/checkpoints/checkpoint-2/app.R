@@ -43,40 +43,39 @@ filePairingVerification <- function(fastQFiles) {
 }
 
 
-createJobsDir <- function(workingDir){
+createJobsDir <- function(workingDir) {
   rootPath <- file.path(
     workingDir,
     "project",
     "jobs"
   )
-  if (!dir.exists(rootPath)){
+  if (!dir.exists(rootPath)) {
     creationStatus <- dir.create(rootPath, recursive = TRUE)
     if (!creationStatus) {
       stop("Directory Creation Failed")
     }
   }
 
-  date <- format(Sys.time(), format = "MW-Y%-%M-D%_H%:M%:S%")
+  date <- format(Sys.time(), format = "MW-%Y-%m-%d_%H-%M-%S")
 
-  fileName <- file.path(
+  dirName <- file.path(
     rootPath,
     date,
-    "output",
+    "output"
   )
 
-  if(file.exists(fileName)){
+  if (dir.exists(dirName)) {
     stop("File Already Exists")
   }
 
-  fileStatus <- file.create(fileName)
+  dirStatus <- dir.create(dirName, recursive = TRUE)
 
-  if (!fileStatus){
+  if (!dirStatus) {
     stop("File Creation Failed")
   }
 
-  return(fileName)
+  return(dirName)
 }
-
 
 
 ui <- fluidPage(
@@ -228,24 +227,20 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = input$createJob,
     handlerExpr = {
-      renderText(
-      tryCatch(
-        expr = {
-          rootPath <- createJobsDir(getwd())
-          pathwayPrint <- paste0("Path: ", rootPath)
-          return(pathwayPrint)
-        },
-        error = function(error){
-          return(message("Error: ", conditionMessage(error)))
-        }
-      )
+      output$statusProgress <- renderText(
+        tryCatch(
+          expr = {
+            rootPath <- createJobsDir(getwd())
+            pathwayPrint <- paste0("Path: ", rootPath)
+            return(pathwayPrint)
+          },
+          error = function(error) {
+            return(paste0("Error: ", conditionMessage(error)))
+          }
+        )
       )
     }
   )
-
-
-
-
 }
 
 
