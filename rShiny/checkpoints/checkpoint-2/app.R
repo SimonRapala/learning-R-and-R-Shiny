@@ -64,17 +64,62 @@ createJobsDir <- function(workingDir) {
   )
 
   if (dir.exists(dirName)) {
-    stop("File Already Exists")
+    stop("Directory Already Exists")
   }
 
   dirStatus <- dir.create(dirName, recursive = TRUE)
 
   if (!dirStatus) {
-    stop("File Creation Failed")
+    stop("Directory Creation Failed")
   }
 
   return(dirName)
 }
+
+
+copyIntoPermanent <- function(fastQUpload, adapterUpload, jobDirectory) {
+  if (!dir.exists(jobDirectory)) {
+    stop("Directory Does Not Exist")
+  }
+
+  inputPath <- file.path(
+    jobDirectory,
+    "inputs"
+  )
+
+  if (!dir.exists(inputPath)) {
+    inputPathStatus <- dir.create(inputPath)
+    if (!inputPathStatus) {
+      stop("Input Path Failed Creation")
+    }
+  }
+
+  combinedFiles <- rbind(
+    fastQUpload,
+    adapterUpload
+  )
+
+  combinedDatapath <- combinedFiles[["datapath"]]
+  combinedName <- combinedFiles[["name"]]
+
+  filePaths <- file.path(
+    inputPath,
+    combinedName
+  )
+
+  copyResults <- file.copy(
+    combinedDatapath,
+    filePaths,
+    overwrite = FALSE
+  )
+
+  if (!all(copyResults)) {
+    stop("One or more files could not be copied")
+  }
+
+  return(filePaths)
+}
+
 
 
 ui <- fluidPage(
@@ -226,18 +271,49 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = input$createJob,
     handlerExpr = {
-      output$statusProgress <- renderText(
-        tryCatch(
-          expr = {
-            rootPath <- createJobsDir(getwd())
-            pathwayPrint <- paste0("Path: ", rootPath)
-            return(pathwayPrint)
-          },
-          error = function(error) {
-            return(paste0("Error: ", conditionMessage(error)))
+      req(input$fastQFiles)
+      req(input$adapterFile)
+
+      statusText <- tryCatch(
+        expr = {
+          rootPath <- createJobsDir(
+            getwd()
+          )
+
+          copiedToPaths <- copyIntoPermanent(
+            input$fastQFiles,
+            input$adapterFile,
+            rootPath
+          )
+
+          pathwayPrint <- paste0(
+            "Job Path: ",
+            rootPath
+          )
+
+          for (path in seq_along(copiedToPaths)) {
+            pathwayPrint <- paste0(
+              pathwayPrint,
+              "\nPath[",
+              path,
+              "]: ",
+              copiedToPaths[path]
+            )
           }
-        )
+
+          pathwayPrint
+        },
+        error = function(error) {
+          paste0(
+            "Error: ",
+            conditionMessage(error)
+          )
+        }
       )
+
+      output$statusProgress <- renderText({
+        statusText
+      })
     }
   )
 }
