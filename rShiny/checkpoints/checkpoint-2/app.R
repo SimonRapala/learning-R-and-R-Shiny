@@ -121,7 +121,6 @@ copyIntoPermanent <- function(fastQUpload, adapterUpload, jobDirectory) {
 }
 
 
-
 ui <- fluidPage(
   titlePanel(
     title = "Rough MetaWorks",
@@ -164,6 +163,10 @@ ui <- fluidPage(
           title = "Information",
           verbatimTextOutput(
             outputId = "statusProgress"
+          ),
+          downloadButton(
+            outputId = "jobSummary",
+            label = "Download Job Summary"
           )
         )
       )
@@ -173,6 +176,7 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
+  jobSummary <- reactiveVal(NULL)
   maxFileSize <- 100 * 1024^2
   maxTotalSize <- 500 * 1024^2
 
@@ -273,47 +277,110 @@ server <- function(input, output, session) {
     handlerExpr = {
       req(input$fastQFiles)
       req(input$adapterFile)
+      jobSummary(NULL)
 
       statusText <- tryCatch(
         expr = {
-          rootPath <- createJobsDir(
-            getwd()
+          withProgress(
+            message = "Job Started",
+            value = 0,
+            expr = {
+              incProgress(
+                amount = 0.25,
+                detail = "Root Creation Has Started"
+              )
+              rootPath <- createJobsDir(
+                getwd()
+              )
+              incProgress(
+                amount = 0.25,
+                detail = "Root Path Has Been Created"
+              )
+              copiedToPaths <- copyIntoPermanent(
+                input$fastQFiles,
+                input$adapterFile,
+                rootPath
+              )
+
+              incProgress(
+                amount = 0.5,
+                detail = "Copied Files Into Persistant Folder"
+              )
+
+              pathwayPrint <- paste0(
+                "Job Path: ",
+                rootPath
+              )
+
+              for (path in seq_along(copiedToPaths)) {
+                pathwayPrint <- paste0(
+                  pathwayPrint,
+                  "\nPath[",
+                  path,
+                  "]: ",
+                  copiedToPaths[path]
+                )
+              }
+              showNotification(
+                ui = "Uploaded File Saved Successfully",
+                duration = 5,
+                type = "message"
+              )
+              jobSummary(list(
+                jobPath = rootPath,
+                copiedFiles = copiedToPaths,
+                createdAt = format(Sys.time(), format = "%Y-%m-%d_%H-%M-%S")
+              ))
+              return(pathwayPrint)
+            }
           )
-
-          copiedToPaths <- copyIntoPermanent(
-            input$fastQFiles,
-            input$adapterFile,
-            rootPath
-          )
-
-          pathwayPrint <- paste0(
-            "Job Path: ",
-            rootPath
-          )
-
-          for (path in seq_along(copiedToPaths)) {
-            pathwayPrint <- paste0(
-              pathwayPrint,
-              "\nPath[",
-              path,
-              "]: ",
-              copiedToPaths[path]
-            )
-          }
-
-          pathwayPrint
         },
         error = function(error) {
-          paste0(
+          errorText <- paste0(
             "Error: ",
             conditionMessage(error)
           )
+
+          showNotification(
+            ui = errorText,
+            type = "error",
+            duration = 8
+          )
+
+          return(errorText)
         }
       )
 
       output$statusProgress <- renderText({
         statusText
       })
+    }
+  )
+
+  output$jobSummary <- downloadHandler(
+    filename = function() {
+      req(jobSummary())
+
+      paste0(
+        "MetaWorks-Job-Summary-",
+        jobSummary()$createdAt,
+        ".txt"
+      )
+    },
+    content = function(file){
+      req(jobSummary())
+
+      summaryLines <- c(
+        "MetaWorks Job Summary",
+        paste0("Created: ", jobSummary()$createdAt),
+        paste0("Copied To: ", jobSummary()$copiedFiles, collapse = "\n"),
+        paste0("Job Directory: ", jobSummary()$jobPath)
+      )
+
+      writeLines(
+        summaryLines,
+        file
+      )
     }
   )
 }
