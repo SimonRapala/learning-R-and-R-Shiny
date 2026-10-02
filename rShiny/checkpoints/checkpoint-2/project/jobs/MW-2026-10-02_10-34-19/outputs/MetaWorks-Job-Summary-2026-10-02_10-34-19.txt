@@ -1,0 +1,6 @@
+MetaWorks Job Summary
+Created: 2026-10-02_10-34-19
+Copied To: /home/simonr/learning-R-and-R-Shiny/rShiny/checkpoints/checkpoint-2/project/jobs/MW-2026-10-02_10-34-19/inputs/BR5_1_R1_001.fastq.gz
+Copied To: /home/simonr/learning-R-and-R-Shiny/rShiny/checkpoints/checkpoint-2/project/jobs/MW-2026-10-02_10-34-19/inputs/BR5_1_R2_002.fastq.gz
+Copied To: /home/simonr/learning-R-and-R-Shiny/rShiny/checkpoints/checkpoint-2/project/jobs/MW-2026-10-02_10-34-19/inputs/adapters.fasta
+Job Directory: /home/simonr/learning-R-and-R-Shiny/rShiny/checkpoints/checkpoint-2/project/jobs/MW-2026-10-02_10-34-19

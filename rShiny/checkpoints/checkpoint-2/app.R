@@ -331,7 +331,7 @@ server <- function(input, output, session) {
                 copiedFiles = copiedToPaths,
                 createdAt = format(Sys.time(), format = "%Y-%m-%d_%H-%M-%S")
               ))
-              return(pathwayPrint)
+              pathwayPrint
             }
           )
         },
