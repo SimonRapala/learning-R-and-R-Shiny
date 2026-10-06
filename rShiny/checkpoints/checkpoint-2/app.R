@@ -1,38 +1,42 @@
+#imports the shiny library
 library(shiny)
+#changes the setting to limit the max size of upload to 500 MiB
 options(
   shiny.maxRequestSize = 500 * 1024^2
 )
 
+#function that verifies file pairings
 filePairingVerification <- function(fastQFiles) {
+  #separates the fwd and rev reads, as bools
   fwdReadBool <- grepl("_R1_", fastQFiles)
   revReadBool <- grepl("_R2_", fastQFiles)
-
+  #actually separates the files into 2 vectors
   fwdRead <- fastQFiles[fwdReadBool]
   revRead <- fastQFiles[revReadBool]
-
+  #gets the expected reverse reads based of fwd reads
   expectedRevRead <- sub(
     "_R1_",
     "_R2_",
     fwdRead
   )
-
+  #gets the expected fwd reads based off present rev reads
   expectedFwdRead <- sub(
     "_R2_",
     "_R1_",
     revRead
   )
-
+  #if the expected reads are present in relevent vector
   hasRevPair <- expectedRevRead %in% revRead
   hasFwdPair <- expectedFwdRead %in% fwdRead
-
+  #pairs up the present read pairs
   pairs <- data.frame(
     fwdRead = fwdRead[hasRevPair],
     revRead = expectedRevRead[hasRevPair]
   )
-
+  #identifies the missing fwd and rev reads
   missingR1 <- expectedFwdRead[!hasFwdPair]
   missingR2 <- expectedRevRead[!hasRevPair]
-
+  #returns list with pair reads along with missing reads
   return(
     list(
       pairs = pairs,
@@ -42,81 +46,84 @@ filePairingVerification <- function(fastQFiles) {
   )
 }
 
-
+#creates the job directory that will store unique MetaWorks runs
 createJobsDir <- function(workingDir) {
+  #creates a directory in the wd() then folders project/jobs/
   rootPath <- file.path(
     workingDir,
     "project",
     "jobs"
   )
+  #if the do not exist actually makes them and all dependent folders
   if (!dir.exists(rootPath)) {
     creationStatus <- dir.create(rootPath, recursive = TRUE)
     if (!creationStatus) {
       stop("Directory Creation Failed")
     }
   }
-
+  #creates folder with todays date and time of metaworks run
   date <- format(Sys.time(), format = "MW-%Y-%m-%d_%H-%M-%S")
 
   dirName <- file.path(
     rootPath,
     date
   )
-
+  #ensures it DNE yet
   if (dir.exists(dirName)) {
     stop("Directory Already Exists")
   }
-
+  #creates it if it doesnt exist
   dirStatus <- dir.create(dirName, recursive = TRUE)
-
+  #if creation fails
   if (!dirStatus) {
     stop("Directory Creation Failed")
   }
-
+  #returns the directory path for usage
   return(dirName)
 }
 
-
+#fucntion that copies files from temp shiny to permenant folder
 copyIntoPermanent <- function(fastQUpload, adapterUpload, jobDirectory) {
+  #ensures it exists
   if (!dir.exists(jobDirectory)) {
     stop("Directory Does Not Exist")
   }
-
+  #creates the path for input files
   inputPath <- file.path(
     jobDirectory,
     "inputs"
   )
-
+  #creates the actual imput directory
   if (!dir.exists(inputPath)) {
     inputPathStatus <- dir.create(inputPath)
     if (!inputPathStatus) {
       stop("Input Path Failed Creation")
     }
   }
-
+  #combines the files ontop of one another
   combinedFiles <- rbind(
     fastQUpload,
     adapterUpload
   )
-
+  #gets the values of of each row for the name and datapath columns
   combinedDatapath <- combinedFiles[["datapath"]]
   combinedName <- combinedFiles[["name"]]
-
+  #creates a new file path for each file
   filePaths <- file.path(
     inputPath,
     combinedName
   )
-
+  #copies the files from the datapath to the new filepaths
   copyResults <- file.copy(
     combinedDatapath,
     filePaths,
     overwrite = FALSE
   )
-
+  #they all need to succeed
   if (!all(copyResults)) {
     stop("One or more files could not be copied")
   }
-
+  #returns the paths
   return(filePaths)
 }
 
