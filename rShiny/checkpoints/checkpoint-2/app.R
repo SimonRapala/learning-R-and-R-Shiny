@@ -127,50 +127,65 @@ copyIntoPermanent <- function(fastQUpload, adapterUpload, jobDirectory) {
   return(filePaths)
 }
 
-
+#allows the UI to be fluid, responsive based on the users browser
 ui <- fluidPage(
+  #controls the windows name and the title of the page
   titlePanel(
     title = "Rough MetaWorks",
     windowTitle = "MetaWorks"
   ),
+  #2 panel layout, sidebar for settingsand main for ddisplay
   sidebarLayout(
+    #elements contained in sidebar
     sidebarPanel = sidebarPanel(
+      #input button that only allows upload of fastq.gz files
       fileInput(
         inputId = "fastQFiles",
         label = "Please Select FastQ Files",
         multiple = TRUE,
         accept = ".fastq.gz"
       ),
+      #input button that only allows upload of a singular fasta file
       fileInput(
         inputId = "adapterFile",
         label = "Please Select Adapter File",
         multiple = FALSE,
         accept = ".fasta"
       ),
+      #button that tracks when its has been clicked
       actionButton(
         inputId = "createJob",
         label = "Create Job"
       )
     ),
+    #main panel that will display output info
     mainPanel = mainPanel(
+      #panel design that groups related content under diffent tabs
       tabsetPanel(
+        #one of the panels
         tabPanel(
+          #panel info
           "File Info",
+          #outputs a table with rows and columns
           tableOutput(
             outputId = "fileInfo"
           )
         ),
+        #another panel
         tabPanel(
           title = "Pairing",
+          #pre designed output box
           verbatimTextOutput(
             outputId = "filePairingInfo"
           )
         ),
+        #another panel
         tabPanel(
           title = "Information",
           verbatimTextOutput(
             outputId = "statusProgress"
           ),
+          #a button that allows user to download files
           downloadButton(
             outputId = "jobSummary",
             label = "Download Job Summary"
@@ -181,14 +196,19 @@ ui <- fluidPage(
   )
 )
 
-
+#actually tracks actions and determines what should happen
 server <- function(input, output, session) {
+  #a value that can be over written to store a summary of the files
   jobSummary <- reactiveVal(NULL)
+  #global in the server for max sizes to enfore maximums
   maxFileSize <- 100 * 1024^2
   maxTotalSize <- 500 * 1024^2
 
+  #prints the table to related output
   output$fileInfo <- renderTable({
+    #every need in validate needs to pass else it will display the message
     validate(
+      #what needs to be true and the message if not true
       need(
         !is.null(input$fastQFiles),
         "Please upload FASTQ files."
@@ -198,76 +218,82 @@ server <- function(input, output, session) {
         "Please upload adapters.fasta."
       )
     )
-
+    #combines all the files names together into one vector
     allNames <- c(
       input$fastQFiles$name,
       input$adapterFile$name
     )
-
+    #combines all file sizes into one vector
     allSizes <- c(
       input$fastQFiles$size,
       input$adapterFile$size
     )
-
+    #ensures all provided fastq files are correct name format
     validFastQNames <- grepl(
       "\\.fastq\\.gz$",
       input$fastQFiles$name,
       ignore.case = TRUE
     )
-
+    #enforces a strict fasta name
     validAdapterName <- (
       tolower(input$adapterFile$name) ==
         "adapters.fasta"
     )
-
+    #ensures all these are true to continue
     validate(
+      #all fastq names are valid
       need(
         all(validFastQNames),
         "Every FASTQ file must end in .fastq.gz."
       ),
+      #fasta name has to be adapters.fasta
       need(
         validAdapterName,
         "The adapter file must be named adapters.fasta."
       ),
+      #checks if any of the names are duplicates
       need(
         anyDuplicated(allNames) == 0,
         "Duplicate filenames are not allowed."
       ),
+      #all file sizes are smaller then enforced amoutn per file
       need(
         all(allSizes <= maxFileSize),
         "Each file must be 100 MiB or smaller."
       ),
+      #ensures combined total size is less then enforced value
       need(
         sum(allSizes) <= maxTotalSize,
         "The combined upload must be 500 MiB or smaller."
       )
     )
-
+    #isolates these attributes into a new vector for fastq
     fastQInfo <- input$fastQFiles[, c(
       "name",
       "size",
       "type"
     )]
-
+    #isolates these attributes into a new vector for fasta
     adapterInfo <- input$adapterFile[, c(
       "name",
       "size",
       "type"
     )]
-
+    #stacks these two vectors together to mkae a table format
     rbind(
       fastQInfo,
       adapterInfo
     )
   })
-
+  #will print out the returned info to related output
   output$filePairingInfo <- renderPrint({
+    #ensures that fastq fiels have been uploaded
     req(input$fastQFiles)
-
+    #calls helper that will verify pairings
     pairs <- filePairingVerification(
       fastQFiles = input$fastQFiles$name
     )
-
+    #displays nicely the output
     cat("Pairs:\n")
     print(pairs$pairs)
 
@@ -278,7 +304,7 @@ server <- function(input, output, session) {
     print(pairs$missingR2)
   })
 
-
+  #observes for a change in the create job button
   observeEvent(
     eventExpr = input$createJob,
     handlerExpr = {
